@@ -1,7 +1,6 @@
 package com.example.ambsoftware.controller;
 
 import com.example.ambsoftware.domain.Movie;
-import com.example.ambsoftware.domain.Rating;
 import com.example.ambsoftware.dto.MovieDto;
 import com.example.ambsoftware.service.MovieService;
 import jakarta.validation.Valid;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -61,8 +61,8 @@ public class MovieController {
     }
 
     @PostMapping("/rateMovie")
-    public final void rateMovie(@RequestBody @Valid Rating rating, @PathVariable Long id) {
-        movieService.rateMovie(id, rating);
+    public final void rateMovie(@RequestParam(name = "ratingId") Long ratingId, @RequestParam(name = "movieId") Long movieId) {
+        movieService.rateMovie(movieId, ratingId);
     }
 
     @GetMapping("findByCategory/{category}")

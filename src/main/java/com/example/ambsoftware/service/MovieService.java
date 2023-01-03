@@ -32,26 +32,23 @@ public class MovieService {
     }
 
     public Movie createMovie(MovieDto movieDto) {
-        Movie movie = Movie.builder()
+        return movieRepository.save(Movie.builder()
                 .releaseYear(movieDto.getReleaseYear())
                 .category(movieDto.getCategory())
                 .description(movieDto.getDescription())
                 .ratings(movieDto.getRatings())
-                .build();
-        movieRepository.save(movie);
-        return movie;
+                .build());
     }
 
     public Movie updateMovie(Long id, MovieDto movieDto) {
         Movie movieToUpdate = getMovieById(id);
-        movieRepository.save(Movie.builder()
+        return movieRepository.save(Movie.builder()
                 .id(movieToUpdate.getId())
                 .releaseYear(movieDto.getReleaseYear())
                 .category(movieDto.getCategory())
                 .description(movieDto.getDescription())
                 .ratings(movieDto.getRatings())
                 .build());
-        return movieToUpdate;
     }
 
     public void deleteMovieById(Long id) {
@@ -59,26 +56,39 @@ public class MovieService {
     }
 
     public List<Movie> findBySequence(String sequence) {
+        return iterateThroughListOfMovies(sequence);
+    }
+
+    private List<Movie> iterateThroughListOfMovies(String sequence) {
         List<Movie> result = new ArrayList<>();
         for (Movie m : getAll()) {
-            if (m.getDescription().contains(sequence) || m.getCategory().equals(sequence)) {
+            if (checkIfDataContainsSequence(sequence, m)) {
                 result.add(m);
             }
         }
         return result;
     }
 
-    public void rateMovie(Long movieId, Rating rating) {
+    private boolean checkIfDataContainsSequence(String sequence, Movie m) {
+        return m.getDescription().contains(sequence) || m.getCategory().equals(sequence);
+    }
+
+    public void rateMovie(Long movieId, Long ratingId) {
         Movie movie = getMovieById(movieId);
-        if (!rating.equals(null) && rating.getMovie().equals(null)) {
-            Optional<Rating> rate = ratingRepository.findById(rating.getId());
-            rate.get().setMovie(movie);
-            movie.getRatings().add(rating);
-        } else if (!rating.getMovie().equals(null)) {
+        Rating rate = getRating(ratingId).get();
+        if (rate != null && rate.getMovie() == null) {
+            rate.setMovie(movie);
+            movie.getRatings().add(rate);
+        } else if (rate.getMovie() != null) {
             throw new MovieTaskException("The rating just have movie");
         } else {
             throw new MovieTaskException("The rating can't be null");
         }
+    }
+
+    private Optional<Rating> getRating(Long ratingId) {
+        return Optional.of(ratingRepository.findById(ratingId)
+                .orElseThrow(() -> new MovieTaskException("Couldn't find specific movie")));
     }
 
     public List<Movie> findMoviesByCategory(String category) {
