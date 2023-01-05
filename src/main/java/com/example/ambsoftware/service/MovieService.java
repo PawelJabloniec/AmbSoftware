@@ -76,7 +76,7 @@ public class MovieService {
     public void rateMovie(Long movieId, Long ratingId) {
         Movie movie = getMovieById(movieId);
         Rating rate = getRating(ratingId).get();
-        if (rate != null && rate.getMovie() == null) {
+        if (rate.getMovie() == null) {
             rate.setMovie(movie);
             movie.getRatings().add(rate);
         } else if (rate.getMovie() != null) {

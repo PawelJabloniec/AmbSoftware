@@ -5,6 +5,9 @@ import com.example.ambsoftware.dto.RatingDto;
 import com.example.ambsoftware.repository.RatingRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class RatingService {
 
@@ -14,12 +17,19 @@ public class RatingService {
         this.ratingRepository = ratingRepository;
     }
 
+    public List<Rating> getAll() {
+        List<Rating> l = new ArrayList<>();
+        Iterable<Rating> all = ratingRepository.findAll();
+        for (Rating r : all) {
+            l.add(r);
+        }
+        return l;
+    }
+
     public Rating createRate(RatingDto ratingDto) {
-        Rating rating = Rating.builder()
+        return ratingRepository.save(Rating.builder()
                 .rate(ratingDto.getRate())
                 .movie(ratingDto.getMovie())
-                .build();
-        ratingRepository.save(rating);
-        return rating;
+                .build());
     }
 }
